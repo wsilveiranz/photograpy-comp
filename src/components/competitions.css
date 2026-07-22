@@ -1,0 +1,173 @@
+.competition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-4);
+}
+
+.competition-card {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  border-radius: var(--radius-md);
+  background: white;
+  box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--color-ink) 10%, transparent);
+}
+
+.competition-card__link {
+  display: block;
+  min-height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.competition-card__link:hover {
+  box-shadow: inset 0 0 0 3px var(--color-purple);
+}
+
+.competition-card__link:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.competition-card__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.competition-card__body {
+  padding: var(--space-4);
+}
+
+.competition-card__body h3 {
+  margin: var(--space-2) 0;
+  font-size: var(--text-lg);
+}
+
+.competition-card__dates {
+  font-size: var(--text-sm);
+}
+
+.competition-status {
+  display: inline-block;
+  padding: 0.25rem var(--space-2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-muted) 15%, white);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.competition-status--submissions { background: color-mix(in srgb, var(--color-purple) 18%, white); }
+.competition-status--voting { background: color-mix(in srgb, var(--color-gold) 35%, white); }
+.competition-status--tiebreak { background: color-mix(in srgb, var(--color-coral) 22%, white); }
+
+.competition-admin {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.competition-admin__current {
+  max-width: 42rem;
+}
+
+.competition-form {
+  max-width: 42rem;
+}
+
+.competition-form fieldset {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.competition-form legend {
+  padding: 0 var(--space-1);
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.competition-form label {
+  display: grid;
+  gap: var(--space-1);
+  font-weight: 700;
+}
+
+.competition-form input,
+.competition-form textarea,
+.competition-form button {
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 35%, transparent);
+  border-radius: var(--radius-sm);
+  font: inherit;
+}
+
+.competition-form input,
+.competition-form textarea {
+  width: 100%;
+  padding: var(--space-2);
+  background: white;
+}
+
+.competition-form textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.competition-form button {
+  padding: var(--space-2) var(--space-3);
+  border-color: var(--color-purple);
+  background: var(--color-purple);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.competition-form button:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.competition-form button:focus-visible,
+.competition-form input:focus-visible,
+.competition-form textarea:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.competition-form button:disabled,
+.competition-form fieldset:disabled button {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.competition-form__dates,
+.competition-form__actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.competition-button--danger {
+  border-color: var(--color-coral) !important;
+  background: var(--color-coral) !important;
+}
+
+.competition-message {
+  max-width: 42rem;
+  padding: var(--space-3);
+  border-left: 0.3rem solid var(--color-purple);
+  background: color-mix(in srgb, var(--color-purple) 10%, white);
+}
+
+.competition-message--error {
+  border-color: var(--color-coral);
+  background: color-mix(in srgb, var(--color-coral) 10%, white);
+}
+
+@media (min-width: 40rem) {
+  .competition-form__dates,
+  .competition-form__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
