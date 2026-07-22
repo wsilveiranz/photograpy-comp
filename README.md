@@ -35,7 +35,7 @@ api/                 Azure Functions app
 Run each in its own terminal:
 
 ```bash
-# 1. Storage emulator
+# 1. Storage emulator (Blob + Table)
 npx azurite --silent --location ./.azurite
 
 # 2. Backend (Azure Functions)
@@ -44,6 +44,12 @@ cd api && npm install && npm start        # http://localhost:7071/api/health
 # 3. Frontend
 npm install && npm run dev                # http://localhost:5173  (proxies /api → :7071)
 ```
+
+Instead of the CLI in step 1 you can use the **Azurite VS Code extension** (recommended in
+`.vscode/extensions.json`): Command Palette → **Azurite: Start**, or the status-bar toggles. The
+provided `.vscode/settings.json` (gitignored, so create your own if cloning fresh) pins its data to
+`./.azurite`, so both launch methods share the same storage. Only run one Azurite instance at a
+time (they share ports 10000–10002).
 
 The API uses `api/local.settings.json` (gitignored — never committed) for local settings. Set
 `ADMIN_ALLOWLIST` to a comma-separated list of administrator email addresses or Entra object IDs.
