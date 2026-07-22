@@ -12,11 +12,18 @@
     "test": "echo \"No tests yet\" && exit 0"
   },
   "dependencies": {
-    "@azure/functions": "^4.5.0"
+    "@azure/data-tables": "13.3.2",
+    "@azure/functions": "^4.5.0",
+    "@azure/storage-blob": "12.32.0",
+    "image-size": "2.0.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.6.0"
+  },
+  "overrides": {
+    "@azure/core-xml": "1.5.0",
+    "fast-xml-parser": "5.9.2"
   }
 }
