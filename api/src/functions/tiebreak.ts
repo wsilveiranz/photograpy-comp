@@ -70,14 +70,14 @@ export async function resolve(
 app.http('tiebreak', {
   methods: ['GET', 'POST'],
   authLevel: 'anonymous',
-  route: 'admin/competitions/{id}/tiebreak',
+  route: 'manage/competitions/{id}/tiebreak',
   handler: tiebreak,
 });
 
 app.http('resolve', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'admin/competitions/{id}/resolve',
+  route: 'manage/competitions/{id}/resolve',
   handler: resolve,
 });
 

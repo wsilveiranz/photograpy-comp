@@ -37,13 +37,13 @@ export async function castTieBreak(
 ): Promise<Result<TieBreakView>> {
   return apiSend<TieBreakView>(
     'POST',
-    `/admin/competitions/${encodeURIComponent(competitionId)}/tiebreak`,
+    `/manage/competitions/${encodeURIComponent(competitionId)}/tiebreak`,
     { entryId },
   );
 }
 
 export async function getTieBreak(competitionId: string): Promise<Result<TieBreakView>> {
-  return apiGet<TieBreakView>(`/admin/competitions/${encodeURIComponent(competitionId)}/tiebreak`);
+  return apiGet<TieBreakView>(`/manage/competitions/${encodeURIComponent(competitionId)}/tiebreak`);
 }
 
 export async function resolveWinner(
@@ -51,7 +51,7 @@ export async function resolveWinner(
 ): Promise<Result<{ winnerId: string }>> {
   return apiSend<{ winnerId: string }>(
     'POST',
-    `/admin/competitions/${encodeURIComponent(competitionId)}/resolve`,
+    `/manage/competitions/${encodeURIComponent(competitionId)}/resolve`,
   );
 }
 

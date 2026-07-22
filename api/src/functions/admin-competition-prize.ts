@@ -71,7 +71,7 @@ export async function adminCompetitionPrize(
 app.http('admin-competition-prize', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'admin/competitions/{id}/prize',
+  route: 'manage/competitions/{id}/prize',
   handler: adminCompetitionPrize,
 });
 

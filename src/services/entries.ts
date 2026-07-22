@@ -27,7 +27,7 @@ export async function listMyEntries(competitionId: string): Promise<Result<Entry
 
 export async function listVettingEntries(competitionId: string): Promise<Result<Entry[]>> {
   return apiGet<Entry[]>(
-    `/admin/competitions/${encodeURIComponent(competitionId)}/entries`,
+    `/manage/competitions/${encodeURIComponent(competitionId)}/entries`,
   );
 }
 
@@ -36,7 +36,7 @@ export async function reviewEntry(
   entryId: string,
   decision: ReviewDecision,
 ): Promise<Result<Entry>> {
-  return apiSend<Entry>('PATCH', `/admin/entries/${encodeURIComponent(entryId)}`, {
+  return apiSend<Entry>('PATCH', `/manage/entries/${encodeURIComponent(entryId)}`, {
     competitionId,
     decision,
   });

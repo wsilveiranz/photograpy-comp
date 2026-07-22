@@ -35,7 +35,7 @@ export async function adminCompetitions(
 app.http('admin-competitions', {
   methods: ['POST', 'PATCH'],
   authLevel: 'anonymous',
-  route: 'admin/competitions/{id?}',
+  route: 'manage/competitions/{id?}',
   handler: adminCompetitions,
 });
 

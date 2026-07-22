@@ -25,7 +25,7 @@ export async function getCompetition(id: string): Promise<Result<Competition>> {
 export async function createCompetition(
   input: CreateCompetitionInput,
 ): Promise<Result<Competition>> {
-  return apiSend<Competition>('POST', '/admin/competitions', input);
+  return apiSend<Competition>('POST', '/manage/competitions', input);
 }
 
 export async function updateCompetitionStatus(
@@ -34,7 +34,7 @@ export async function updateCompetitionStatus(
 ): Promise<Result<Competition>> {
   return apiSend<Competition>(
     'PATCH',
-    `/admin/competitions/${encodeURIComponent(id)}`,
+    `/manage/competitions/${encodeURIComponent(id)}`,
     update,
   );
 }
@@ -49,7 +49,7 @@ export async function setPrize(
   formData.append('description', description);
   return apiSend<Competition>(
     'POST',
-    `/admin/competitions/${encodeURIComponent(id)}/prize`,
+    `/manage/competitions/${encodeURIComponent(id)}/prize`,
     formData,
   );
 }

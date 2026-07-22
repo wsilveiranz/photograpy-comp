@@ -119,13 +119,13 @@ function isReviewBody(value: unknown): value is ReviewBody {
 app.http('adminCompetitionEntries', {
   methods: ['GET'],
   authLevel: 'anonymous',
-  route: 'admin/competitions/{id}/entries',
+  route: 'manage/competitions/{id}/entries',
   handler: getVettingEntries,
 });
 
 app.http('adminReviewEntry', {
   methods: ['PATCH'],
   authLevel: 'anonymous',
-  route: 'admin/entries/{entryId}',
+  route: 'manage/entries/{entryId}',
   handler: patchVettingEntry,
 });
