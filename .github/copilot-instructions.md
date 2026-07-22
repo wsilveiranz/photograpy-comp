@@ -113,6 +113,12 @@ Deploy is automated by `.github/workflows/azure-static-web-apps.yml` (needs the
 `AZURE_STATIC_WEB_APPS_API_TOKEN` repo secret from the Static Web App's deployment token). The
 Storage account's connection string is set as the SWA `STORAGE_CONNECTION` application setting.
 
+**npm registry split:** local installs use the internal package feed (per policy), which CI runners
+cannot reach. The workflow therefore builds the frontend and `api/` itself with the **public**
+registry (`npm install --registry=https://registry.npmjs.org/ --no-package-lock`) and uploads the
+built artifacts (`skip_app_build`/`skip_api_build`), rather than letting the SWA action install from
+the committed lockfile (whose `resolved` URLs point at the internal feed).
+
 ## Conventions
 
 - **Env vars**: all frontend-exposed vars require the `VITE_` prefix (Vite requirement); the API

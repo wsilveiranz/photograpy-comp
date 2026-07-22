@@ -18,20 +18,40 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy
+    env:
+      # CI runners cannot reach the internal package feed used locally, so install from the
+      # public npm registry here. `--no-package-lock` ignores the committed lockfile, whose
+      # `resolved` URLs point at the internal feed and would fail on a hosted runner.
+      NPM_REGISTRY: "https://registry.npmjs.org/"
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Build And Deploy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build frontend (public registry)
+        run: |
+          npm install --registry="$NPM_REGISTRY" --no-package-lock --no-audit --no-fund
+          npm run build
+      - name: Build API (public registry)
+        working-directory: api
+        run: |
+          npm install --registry="$NPM_REGISTRY" --no-package-lock --no-audit --no-fund
+          npm run build
+      - name: Deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          # Frontend (Vite) at the repo root, managed Functions in ./api
+          # Frontend (Vite) at the repo root, managed Functions in ./api.
+          # We build above, so tell the action to upload the artifacts as-is.
           app_location: "/"
           api_location: "api"
           output_location: "dist"
+          skip_app_build: true
+          skip_api_build: true
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

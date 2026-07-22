@@ -65,6 +65,10 @@ CI/CD lives in [`.github/workflows/azure-static-web-apps.yml`](./.github/workflo
 Managed-Functions constraints: HTTP triggers only, Node 20 (`platform.apiRuntime` in
 `public/staticwebapp.config.json`), no Managed Identity, and keep under ~39 function registrations.
 
+> **npm registry:** local installs use the internal package feed (per policy). CI can't reach that
+> feed, so the workflow installs from the **public** registry (`--registry=https://registry.npmjs.org/
+> --no-package-lock`) and builds before the SWA action uploads the artifacts.
+
 ## Scripts
 
 Frontend (repo root):
