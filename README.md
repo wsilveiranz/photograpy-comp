@@ -30,7 +30,7 @@ api/                 Azure Functions app
 .github/             Copilot instructions + lifecycle harness (skills, hooks)
 ```
 
-## Getting started
+## Local development
 
 Run each in its own terminal:
 
@@ -45,9 +45,19 @@ cd api && npm install && npm start        # http://localhost:7071/api/health
 npm install && npm run dev                # http://localhost:5173  (proxies /api → :7071)
 ```
 
+The API uses `api/local.settings.json` for local settings. Set `ADMIN_ALLOWLIST` to a
+comma-separated list of administrator email addresses or Entra object IDs. `STORAGE_CONNECTION`
+and `AzureWebJobsStorage` use `UseDevelopmentStorage=true` with Azurite. Content Safety is a
+third Azure resource, configured with `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY`;
+pre-screening is optional and gracefully disabled when these values are empty.
+
 The Vite dev server proxies `/api` to the Functions host, so the frontend uses the same
 `/api/...` URLs locally as it does in production. For an environment closest to Azure Static Web
-Apps, use the SWA CLI instead: `npx @azure/static-web-apps-cli start dist --api-location api`.
+Apps, use the SWA CLI instead: `npm run build` followed by `swa start` (or `npx swa start`).
+The checked-in `swa-cli.config.json` supplies the app, API, and development-server locations.
+
+Before making code changes, record the GitHub issue number in `.copilot-issue` (for example,
+`Set-Content .copilot-issue 8`); this file is intentionally gitignored.
 
 ## Deployment
 
@@ -61,6 +71,9 @@ CI/CD lives in [`.github/workflows/azure-static-web-apps.yml`](./.github/workflo
 
 - Repo secret `AZURE_STATIC_WEB_APPS_API_TOKEN` — the Static Web App's deployment token.
 - SWA application setting `STORAGE_CONNECTION` — the shared Storage account connection string.
+- SWA application settings `ADMIN_ALLOWLIST`, `CONTENT_SAFETY_ENDPOINT`, and
+  `CONTENT_SAFETY_KEY` (configure secrets in the SWA environment; never commit them).
+- Content Safety is a separate, third Azure resource; moderation remains optional when unset.
 
 Managed-Functions constraints: HTTP triggers only, Node 20 (`platform.apiRuntime` in
 `public/staticwebapp.config.json`), no Managed Identity, and keep under ~39 function registrations.
@@ -79,6 +92,8 @@ Frontend (repo root):
 | `npm run build` | `tsc -b && vite build` |
 | `npm run lint` | oxlint |
 | `npm run preview` | Preview the production build |
+| `npm test` | Run Vitest |
+| `npm run swa:start` | Start the SWA CLI local proxy |
 
 Backend (`api/`):
 

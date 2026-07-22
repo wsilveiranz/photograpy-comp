@@ -23,6 +23,9 @@ jobs:
       # public npm registry here. `--no-package-lock` ignores the committed lockfile, whose
       # `resolved` URLs point at the internal feed and would fail on a hosted runner.
       NPM_REGISTRY: "https://registry.npmjs.org/"
+      # Configure these in the Static Web App application settings, not in source or workflow
+      # secrets: STORAGE_CONNECTION, ADMIN_ALLOWLIST, CONTENT_SAFETY_ENDPOINT, CONTENT_SAFETY_KEY.
+      # STORAGE_CONNECTION is required; Content Safety settings are optional for pre-screening.
     steps:
       - uses: actions/checkout@v4
         with:
