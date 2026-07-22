@@ -15,9 +15,12 @@
     "@azure/data-tables": "13.3.2",
     "@azure/functions": "^4.5.0",
     "@azure/storage-blob": "12.32.0",
-    "image-size": "2.0.2"
+    "heic-convert": "^2.1.0",
+    "image-size": "2.0.2",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
+    "@types/heic-convert": "^2.1.0",
     "@types/node": "^24.0.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.6.0"
