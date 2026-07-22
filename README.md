@@ -45,11 +45,16 @@ cd api && npm install && npm start        # http://localhost:7071/api/health
 npm install && npm run dev                # http://localhost:5173  (proxies /api → :7071)
 ```
 
-The API uses `api/local.settings.json` for local settings. Set `ADMIN_ALLOWLIST` to a
-comma-separated list of administrator email addresses or Entra object IDs. `STORAGE_CONNECTION`
-and `AzureWebJobsStorage` use `UseDevelopmentStorage=true` with Azurite. Content Safety is a
-third Azure resource, configured with `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY`;
-pre-screening is optional and gracefully disabled when these values are empty.
+The API uses `api/local.settings.json` (gitignored — never committed) for local settings. Set
+`ADMIN_ALLOWLIST` to a comma-separated list of administrator email addresses or Entra object IDs.
+`STORAGE_CONNECTION` must be a **full** Azure Storage connection string (containing `AccountName`
+and `AccountKey`) because the API mints short-lived read-only SAS URLs for images. For Azurite,
+use the full development connection string (`DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=…;BlobEndpoint=…`)
+rather than the `UseDevelopmentStorage=true` shorthand — the well-known emulator key is a
+local-only, non-secret value and lives only in this untracked file, never in source.
+`AzureWebJobsStorage` may keep `UseDevelopmentStorage=true`. Content Safety is a third Azure
+resource, configured with `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY`; pre-screening is
+optional and gracefully disabled when these values are empty.
 
 The Vite dev server proxies `/api` to the Functions host, so the frontend uses the same
 `/api/...` URLs locally as it does in production. For an environment closest to Azure Static Web

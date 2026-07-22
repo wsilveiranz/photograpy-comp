@@ -17,9 +17,6 @@ export const TABLE_NAMES = {
 export type TableName = (typeof TABLE_NAMES)[keyof typeof TABLE_NAMES];
 
 const PHOTOS_CONTAINER_NAME = 'photos';
-const AZURITE_ACCOUNT_NAME = 'devstoreaccount1';
-const AZURITE_ACCOUNT_KEY =
-  'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==';
 
 const tableClients = new Map<TableName, Promise<TableClient>>();
 let blobServiceClient: BlobServiceClient | undefined;
@@ -113,13 +110,6 @@ function parseSharedKeyDetails(connectionString: string): {
   accountName: string;
   accountKey: string;
 } {
-  if (/useDevelopmentStorage\s*=\s*true/i.test(connectionString)) {
-    return {
-      accountName: AZURITE_ACCOUNT_NAME,
-      accountKey: AZURITE_ACCOUNT_KEY,
-    };
-  }
-
   const settings = new Map<string, string>();
   for (const segment of connectionString.split(';')) {
     const separatorIndex = segment.indexOf('=');
@@ -135,7 +125,11 @@ function parseSharedKeyDetails(connectionString: string): {
   const accountName = settings.get('accountname');
   const accountKey = settings.get('accountkey');
   if (!accountName || !accountKey) {
-    throw new Error('STORAGE_CONNECTION must contain AccountName and AccountKey to generate SAS URLs');
+    throw new Error(
+      'STORAGE_CONNECTION must be a full connection string containing AccountName and AccountKey to ' +
+        'generate SAS URLs. For Azurite, use the full development connection string (see README), ' +
+        'not the "UseDevelopmentStorage=true" shorthand.',
+    );
   }
 
   return { accountName, accountKey };
