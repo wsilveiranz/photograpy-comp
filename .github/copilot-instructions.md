@@ -150,12 +150,14 @@ skills explicitly with the `skill` tool when the triggers match. Hooks in
 | `/debug-investigate` | A bug, failure, or "X doesn't work" report — instrument first, fix with evidence |
 | `/ux-review` | Any React component was created or modified — run before committing |
 | `/frontend-test` | Any component or service was modified — run existing tests |
+| `/security-review` | Change touches credentials, config, auth/authz, storage access (connection strings, SAS/keys), or moderation |
 
 ### Hooks
 
 | Hook | Event | Behaviour |
 |---|---|---|
 | Issue gate | `preToolUse` (edit/create) | **Blocks** code edits unless an issue is tracked (see below). Exempt: `.github/`, `docs/`, `*.md` |
+| Secret scan | `preToolUse` (edit/create) | **Blocks** writes to `src/**`/`api/src/**` that embed hardcoded secrets/credentials (connection keys, private keys, tokens). Exempt: `.github/`, `docs/`, `*.md`, `local.settings.json`, `*.example`, test fixtures |
 | Plan regression gate | `preToolUse` (exit_plan_mode) | **Blocks** plan finalisation unless the plan summary states a Regression Risk assessment |
 | Sub-agent inject | `subagentStart` | Injects commit conventions + UX reminders into every sub-agent prompt |
 | Post-turn verify | `agentStop` | Blocks stop if React components were modified without invoking `/ux-review` |

@@ -11,6 +11,13 @@
       },
       {
         "type": "command",
+        "bash": ".github/hooks/scripts/secret-scan.sh",
+        "powershell": ".github/hooks/scripts/secret-scan.ps1",
+        "timeoutSec": 10,
+        "matcher": "edit|create"
+      },
+      {
+        "type": "command",
         "bash": ".github/hooks/scripts/plan-regression-gate.sh",
         "powershell": ".github/hooks/scripts/plan-regression-gate.ps1",
         "timeoutSec": 10,
