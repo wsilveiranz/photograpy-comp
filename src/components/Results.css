@@ -1,0 +1,143 @@
+.results-panel,
+.winner-page {
+  display: grid;
+  gap: var(--space-3, 1rem);
+  max-width: 70rem;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.results-panel__table-wrap {
+  overflow-x: auto;
+}
+
+.results-panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-panel caption,
+.results-panel th,
+.results-panel td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-muted);
+  text-align: left;
+}
+
+.results-panel__tiebreak,
+.winner-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: var(--space-3, 1rem);
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-sm);
+}
+
+.results-panel fieldset {
+  display: grid;
+  gap: 0.5rem;
+  border: 0;
+  padding: 0;
+}
+
+.results-panel__choice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.25rem;
+}
+
+.results-panel__choice input {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+.results-panel__button {
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-purple);
+  color: var(--color-paper);
+  cursor: pointer;
+  font: inherit;
+}
+
+.results-panel__button:focus-visible,
+.results-panel__choice:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.results-panel__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.results-panel__spinner {
+  display: inline-block;
+  inline-size: 1em;
+  block-size: 1em;
+  margin-inline-end: 0.5rem;
+  border: 0.15em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: results-spin 0.8s linear infinite;
+  vertical-align: -0.1em;
+}
+
+.results-panel__error {
+  color: var(--color-coral);
+}
+
+.results-panel__warning {
+  color: var(--color-coral);
+}
+
+.results-panel__notice {
+  color: var(--color-purple);
+}
+
+.winner-page__eyebrow {
+  color: var(--color-coral);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.winner-card {
+  overflow: hidden;
+  padding: 0;
+}
+
+.winner-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.winner-card__body {
+  padding: var(--space-3);
+}
+
+@keyframes results-spin {
+  to { transform: rotate(360deg); }
+}
+
+.winner-card__body h3 {
+  margin: 0 0 0.5rem;
+}
+
+.winner-page__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3, 1rem);
+}
+
+@media (min-width: 40rem) {
+  .winner-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
