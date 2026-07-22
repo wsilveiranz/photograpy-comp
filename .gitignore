@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Azure Functions
+local.settings.json
+bin
+obj
+.python_packages
+
+# Azurite storage emulator
+.azurite/
+__azurite_db*__.json
+__blobstorage__
+__queuestorage__
+
+# Copilot lifecycle harness
+.copilot-issue
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

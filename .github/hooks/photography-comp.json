@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": ".github/hooks/scripts/issue-gate.sh",
+        "powershell": ".github/hooks/scripts/issue-gate.ps1",
+        "timeoutSec": 10,
+        "matcher": "edit|create"
+      },
+      {
+        "type": "command",
+        "bash": ".github/hooks/scripts/plan-regression-gate.sh",
+        "powershell": ".github/hooks/scripts/plan-regression-gate.ps1",
+        "timeoutSec": 10,
+        "matcher": "exit_plan_mode"
+      }
+    ],
+    "subagentStart": [
+      {
+        "type": "command",
+        "bash": ".github/hooks/scripts/subagent-inject.sh",
+        "powershell": ".github/hooks/scripts/subagent-inject.ps1",
+        "timeoutSec": 5
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": ".github/hooks/scripts/post-turn-verify.sh",
+        "powershell": ".github/hooks/scripts/post-turn-verify.ps1",
+        "timeoutSec": 15
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": ".github/hooks/scripts/commit-lint.sh",
+        "powershell": ".github/hooks/scripts/commit-lint.ps1",
+        "timeoutSec": 10,
+        "matcher": "powershell|bash"
+      }
+    ]
+  }
+}
