@@ -6,7 +6,8 @@
       "apiLocation": "api",
       "outputLocation": "dist",
       "appDevserverUrl": "http://localhost:5173",
-      "apiDevserverUrl": "http://localhost:7071"
+      "apiDevserverUrl": "http://localhost:7071",
+      "swaConfigLocation": "swa-local"
     }
   }
 }

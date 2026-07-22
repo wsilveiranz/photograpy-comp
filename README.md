@@ -63,9 +63,33 @@ resource, configured with `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY`; pr
 optional and gracefully disabled when these values are empty.
 
 The Vite dev server proxies `/api` to the Functions host, so the frontend uses the same
-`/api/...` URLs locally as it does in production. For an environment closest to Azure Static Web
-Apps, use the SWA CLI instead: `npm run build` followed by `swa start` (or `npx swa start`).
-The checked-in `swa-cli.config.json` supplies the app, API, and development-server locations.
+`/api/...` URLs locally as it does in production. **However, sign-in does not work under plain
+`npm run dev`** — the `/.auth/login/aad` endpoint is served by the Static Web Apps runtime, not by
+Vite or the Functions host, so clicking "Sign in" there yields a *page not found*.
+
+### Testing authentication locally
+
+Authentication is fully delegated to **Microsoft Entra ID via SWA EasyAuth** — the app stores no
+passwords or tokens. Login redirects to the platform endpoint `/.auth/login/aad`; the Functions read
+the injected `x-ms-client-principal` header (`api/src/shared/auth.ts`). To exercise this locally,
+run the **SWA CLI**, which emulates `/.auth/*` with a mock login form (no real Entra needed):
+
+```bash
+# with Azurite + `func start` (api) + `npm run dev` (frontend) already running:
+npm run swa:start        # swa start app  → http://localhost:4280
+```
+
+Browse **http://localhost:4280** (not :5173) and use the mock login form to enter any username.
+The emulator uses `swa-local/staticwebapp.config.json` (via `swaConfigLocation` in
+`swa-cli.config.json`) — an auth-block-free copy of the production config — so it serves the mock
+login instead of attempting real OIDC against the placeholder tenant. The production config in
+`public/staticwebapp.config.json` keeps the real Entra registration.
+
+To test **admin** features locally, set `ADMIN_ALLOWLIST` in `api/local.settings.json` to the
+username you type into the mock login, then restart `func`.
+
+`npm run build` is required before `swa start` if you want it to serve the built `dist` instead of
+the Vite dev server.
 
 Before making code changes, record the GitHub issue number in `.copilot-issue` (for example,
 `Set-Content .copilot-issue 8`); this file is intentionally gitignored.

@@ -24,6 +24,9 @@ __azurite_db*__.json
 __blobstorage__
 __queuestorage__
 
+# SWA CLI runtime cache
+.swa/
+
 # Copilot lifecycle harness
 .copilot-issue
 
