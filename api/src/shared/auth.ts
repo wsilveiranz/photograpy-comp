@@ -1,4 +1,5 @@
 import type { HttpRequest, HttpResponseInit } from '@azure/functions';
+import { APPROVED_ROLE, getAccessPolicy, isIdentityAllowed } from './access';
 
 export interface ClientPrincipalClaim {
   type: string;
@@ -62,13 +63,61 @@ export function isAdmin(principal: ClientPrincipal): boolean {
   return identifiers.some((identifier) => allowList.has(identifier));
 }
 
+export function getDisplayName(principal: ClientPrincipal): string {
+  const name = findClaim(principal.claims, [
+    'name',
+    'preferred_username',
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+  ]);
+  if (name) {
+    return name;
+  }
+  if (principal.userDetails.includes('@')) {
+    return principal.userDetails;
+  }
+  return principal.userDetails || principal.userId;
+}
+
+// True when the signed-in user is permitted to use the app under the configured tenant/domain
+// allowlist. Unrestricted policy => everyone; admins are always trusted; otherwise the user must
+// carry the rolesSource-assigned approved role OR match the allowlist inline (via userDetails email
+// or forwarded claims). See api/src/shared/access.ts and docs/deployment.md (Option B).
+export function isApproved(principal: ClientPrincipal): boolean {
+  const policy = getAccessPolicy();
+  if (!policy.restricted) {
+    return true;
+  }
+  if (isAdmin(principal)) {
+    return true;
+  }
+  if (principal.roles.includes(APPROVED_ROLE)) {
+    return true;
+  }
+  return isIdentityAllowed(
+    {
+      userId: principal.userId,
+      userDetails: principal.userDetails,
+      claims: principal.claims,
+    },
+    policy,
+  );
+}
+
 export function requireUser(request: HttpRequest): AuthResult {
-  return (
-    parseClientPrincipal(request) ?? {
+  const principal = parseClientPrincipal(request);
+  if (!principal) {
+    return {
       status: 401,
       jsonBody: { error: 'Authentication required' },
-    }
-  );
+    };
+  }
+  if (!isApproved(principal)) {
+    return {
+      status: 403,
+      jsonBody: { error: 'Your account is not permitted to access this competition' },
+    };
+  }
+  return principal;
 }
 
 export function requireAdmin(request: HttpRequest): AuthResult {

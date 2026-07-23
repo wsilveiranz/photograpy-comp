@@ -17,6 +17,17 @@ export interface Competition {
   closedAt: string | null;
 }
 
+export interface CompetitionStats {
+  entryCount: number;
+  approvedEntryCount: number;
+  voteCount: number;
+}
+
+export interface AdminCompetitionSummary {
+  competition: Competition;
+  stats: CompetitionStats;
+}
+
 export interface Entry {
   id: string;
   competitionId: string;
@@ -60,6 +71,9 @@ export interface TieBreakVote {
 export interface AnonymizedEntry {
   entryId: string;
   thumbUrl: string;
+  fullUrl: string;
+  width: number;
+  height: number;
 }
 
 export interface WinnerView {

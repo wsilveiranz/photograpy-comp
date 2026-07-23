@@ -23,7 +23,14 @@ export async function analyzeImage(
   const endpoint = process.env.CONTENT_SAFETY_ENDPOINT?.trim();
   const key = process.env.CONTENT_SAFETY_KEY?.trim();
   if (!endpoint || !key) {
-    return { flagged: false, severities: {} };
+    log?.({
+      operation: 'moderation.analyze',
+      outcome: 'not_configured',
+    });
+    return {
+      flagged: true,
+      severities: { error: 'moderation_not_configured' },
+    };
   }
 
   try {

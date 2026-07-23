@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "staticWebAppLocation": {
+      "value": "eastasia"
+    },
+    "staticWebAppName": {
+      "value": "swa-photocomp-anz"
+    },
+    "storageAccountName": {
+      "value": "stphotocompanz"
+    },
+    "storageSkuName": {
+      "value": "Standard_LRS"
+    },
+    "adminAllowlist": {
+      "value": "you@yourtenant.com"
+    },
+    "deployContentSafety": {
+      "value": false
+    },
+    "contentSafetySkuName": {
+      "value": "S0"
+    },
+    "allowedTenantIds": {
+      "value": ""
+    },
+    "allowedEmailDomains": {
+      "value": "yourtenant.com"
+    }
+  }
+}

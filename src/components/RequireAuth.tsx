@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { NotAuthorized } from './NotAuthorized';
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { loading, user } = useAuth();
@@ -10,6 +11,10 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   if (!user) {
     return <p role="status">Please sign in to access this page.</p>;
+  }
+
+  if (!user.isApproved) {
+    return <NotAuthorized />;
   }
 
   return <>{children}</>;

@@ -59,6 +59,15 @@ describe('validateImage', () => {
       error: 'Image long edge must be at least 2000 pixels.',
     });
   });
+
+  it('skips the long-edge minimum when minLongEdge is 0 (prize images)', () => {
+    expect(validateImage(png(400, 300), 'image/png', { minLongEdge: 0 })).toMatchObject({
+      valid: true,
+      contentType: 'image/png',
+      width: 400,
+      height: 300,
+    });
+  });
 });
 
 describe('deriveAlias', () => {

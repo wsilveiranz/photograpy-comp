@@ -1,5 +1,5 @@
 import { apiGet, apiSend } from '../lib/apiClient';
-import type { Competition, Result } from '../types';
+import type { AdminCompetitionSummary, Competition, Result } from '../types';
 
 export interface CreateCompetitionInput {
   name: string;
@@ -20,6 +20,14 @@ export async function listCompetitions(): Promise<Result<Competition[]>> {
 
 export async function getCompetition(id: string): Promise<Result<Competition>> {
   return apiGet<Competition>(`/competitions/${encodeURIComponent(id)}`);
+}
+
+export async function getAdminCompetitionSummary(
+  id: string,
+): Promise<Result<AdminCompetitionSummary>> {
+  return apiGet<AdminCompetitionSummary>(
+    `/manage/competitions/${encodeURIComponent(id)}`,
+  );
 }
 
 export async function createCompetition(

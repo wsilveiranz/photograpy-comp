@@ -12,6 +12,7 @@ import { generateReadSasUrl, getTableClient, TABLE_NAMES } from './storage';
 
 const MAX_TOKENS = 3;
 const THUMBNAIL_SAS_TTL_MINUTES = 15;
+const FULL_IMAGE_SAS_TTL_MINUTES = 15;
 
 export type VoteErrorCode =
   | 'not-voting'
@@ -29,6 +30,9 @@ export class VoteError extends Error {
 export interface AnonymizedEntry {
   entryId: string;
   thumbUrl: string;
+  fullUrl: string;
+  width: number;
+  height: number;
 }
 
 export async function castVote(
@@ -138,10 +142,19 @@ export async function listApprovedAnonymized(
   }
 
   return Promise.all(
-    approvedEntries.map(async (entry) => ({
-      entryId: entry.id,
-      thumbUrl: await generateReadSasUrl(entry.thumbBlobName, THUMBNAIL_SAS_TTL_MINUTES),
-    })),
+    approvedEntries.map(async (entry) => {
+      const [thumbUrl, fullUrl] = await Promise.all([
+        generateReadSasUrl(entry.thumbBlobName, THUMBNAIL_SAS_TTL_MINUTES),
+        generateReadSasUrl(entry.blobName, FULL_IMAGE_SAS_TTL_MINUTES),
+      ]);
+      return {
+        entryId: entry.id,
+        thumbUrl,
+        fullUrl,
+        width: entry.width,
+        height: entry.height,
+      };
+    }),
   );
 }
 

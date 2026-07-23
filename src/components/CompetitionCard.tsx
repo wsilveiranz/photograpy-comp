@@ -4,11 +4,13 @@ import './competitions.css';
 export interface CompetitionCardProps {
   competition: Competition;
   linkToDetails?: boolean;
+  href?: string;
 }
 
 export function CompetitionCard({
   competition,
   linkToDetails = true,
+  href,
 }: CompetitionCardProps) {
   const content = (
     <>
@@ -40,7 +42,7 @@ export function CompetitionCard({
       {linkToDetails ? (
         <a
           className="competition-card__link"
-          href={`/competitions/${encodeURIComponent(competition.id)}`}
+          href={href ?? `/competitions/${encodeURIComponent(competition.id)}`}
         >
           {content}
         </a>

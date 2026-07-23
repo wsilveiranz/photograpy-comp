@@ -1,0 +1,216 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.40.2.10011",
+      "templateHash": "17081239829928383049"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure region for the storage account (and Content Safety, if deployed). Defaults to the resource group location."
+      }
+    },
+    "staticWebAppLocation": {
+      "type": "string",
+      "defaultValue": "eastasia",
+      "allowedValues": [
+        "westus2",
+        "centralus",
+        "eastus2",
+        "westeurope",
+        "eastasia",
+        "eastasiastage"
+      ],
+      "metadata": {
+        "description": "Azure region for the Static Web App. Must be a Static Web Apps-supported region."
+      }
+    },
+    "staticWebAppName": {
+      "type": "string",
+      "defaultValue": "[format('swa-photocomp-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Globally-unique name for the Static Web App."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('stphoto{0}', uniqueString(resourceGroup().id)))]",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Globally-unique storage account name (3-24 lowercase alphanumeric characters)."
+      }
+    },
+    "storageSkuName": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS"
+      ],
+      "metadata": {
+        "description": "Storage account SKU. Standard_LRS is sufficient for a single internal competition site."
+      }
+    },
+    "adminAllowlist": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Comma-separated list of admin identifiers (email / UPN / Entra object id). Matched case-insensitively against the signed-in principal. Leave empty for no admins until you set it later."
+      }
+    },
+    "deployContentSafety": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Deploy an Azure AI Content Safety account and wire CONTENT_SAFETY_* automatically. If false, uploads are flagged for manual review until you configure a moderation endpoint."
+      }
+    },
+    "contentSafetyName": {
+      "type": "string",
+      "defaultValue": "[format('cs-photocomp-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Name for the Content Safety account (used only when deployContentSafety = true)."
+      }
+    },
+    "contentSafetySkuName": {
+      "type": "string",
+      "defaultValue": "S0",
+      "allowedValues": [
+        "F0",
+        "S0"
+      ],
+      "metadata": {
+        "description": "Content Safety SKU. F0 = free tier (quota-limited), S0 = standard."
+      }
+    },
+    "allowedTenantIds": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Comma-separated Entra tenant IDs allowed to sign in. Leave empty to skip tenant gating. Note: tenant-ID gating relies on the SWA rolesSource claim forwarding — see docs/deployment.md."
+      }
+    },
+    "allowedEmailDomains": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Comma-separated email domains allowed to sign in (e.g. \"contoso.com,fabrikam.com\"). Leave empty to skip domain gating. Domain gating is the most reliable restriction."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('storageSkuName')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "allowSharedKeyAccess": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}', parameters('storageAccountName'), 'default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/{1}/{2}', parameters('storageAccountName'), 'default', 'photos')]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "condition": "[parameters('deployContentSafety')]",
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('contentSafetyName')]",
+      "location": "[parameters('location')]",
+      "kind": "ContentSafety",
+      "sku": {
+        "name": "[parameters('contentSafetySkuName')]"
+      },
+      "properties": {
+        "customSubDomainName": "[parameters('contentSafetyName')]",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Web/staticSites",
+      "apiVersion": "2023-12-01",
+      "name": "[parameters('staticWebAppName')]",
+      "location": "[parameters('staticWebAppLocation')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "properties": {
+        "allowConfigFileUpdates": true,
+        "stagingEnvironmentPolicy": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Web/staticSites/config",
+      "apiVersion": "2023-12-01",
+      "name": "[format('{0}/{1}', parameters('staticWebAppName'), 'appsettings')]",
+      "properties": "[union(createObject('STORAGE_CONNECTION', format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix={2}', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-05-01').keys[0].value, environment().suffixes.storage), 'ADMIN_ALLOWLIST', parameters('adminAllowlist'), 'ALLOWED_TENANT_IDS', parameters('allowedTenantIds'), 'ALLOWED_EMAIL_DOMAINS', parameters('allowedEmailDomains')), if(parameters('deployContentSafety'), createObject('CONTENT_SAFETY_ENDPOINT', reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('contentSafetyName')), '2023-05-01').endpoint, 'CONTENT_SAFETY_KEY', listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('contentSafetyName')), '2023-05-01').key1), createObject()))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('contentSafetyName'))]",
+        "[resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "staticWebAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Static Web App resource name."
+      },
+      "value": "[parameters('staticWebAppName')]"
+    },
+    "staticWebAppDefaultHostname": {
+      "type": "string",
+      "metadata": {
+        "description": "Default hostname of the Static Web App (the live site URL host)."
+      },
+      "value": "[reference(resourceId('Microsoft.Web/staticSites', parameters('staticWebAppName')), '2023-12-01').defaultHostname]"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account name."
+      },
+      "value": "[parameters('storageAccountName')]"
+    },
+    "contentSafetyDeployed": {
+      "type": "bool",
+      "metadata": {
+        "description": "Whether a Content Safety account was deployed and wired up."
+      },
+      "value": "[parameters('deployContentSafety')]"
+    }
+  }
+}

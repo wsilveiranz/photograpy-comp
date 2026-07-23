@@ -58,7 +58,7 @@
   padding: 0.65rem 1rem;
   border: 0;
   border-radius: var(--radius-sm);
-  background: var(--color-purple);
+  background: var(--color-action);
   color: var(--color-paper);
   cursor: pointer;
   font: inherit;

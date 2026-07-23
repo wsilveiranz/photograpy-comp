@@ -3,10 +3,12 @@ import { isAuthError, requireAdmin } from '../shared/auth';
 import {
   CompetitionError,
   createCompetition,
+  getCompetition,
   toCompetitionView,
   updateStatus,
   type CompetitionStatusAction,
 } from '../shared/competitions';
+import { getCompetitionStats } from '../shared/competition-stats';
 
 export async function adminCompetitions(
   request: HttpRequest,
@@ -25,6 +27,9 @@ export async function adminCompetitions(
   if (request.method === 'POST' && !request.params.id) {
     return create(request, context, principal.userId);
   }
+  if (request.method === 'GET' && request.params.id) {
+    return getSummary(context, principal.userId, request.params.id);
+  }
   if (request.method === 'PATCH' && request.params.id) {
     return changeStatus(request, context, principal.userId, request.params.id);
   }
@@ -33,11 +38,39 @@ export async function adminCompetitions(
 }
 
 app.http('admin-competitions', {
-  methods: ['POST', 'PATCH'],
+  methods: ['GET', 'POST', 'PATCH'],
   authLevel: 'anonymous',
   route: 'manage/competitions/{id?}',
   handler: adminCompetitions,
 });
+
+async function getSummary(
+  context: InvocationContext,
+  adminId: string,
+  competitionId: string,
+): Promise<HttpResponseInit> {
+  const operation = 'adminCompetitions.getSummary';
+  try {
+    const record = await getCompetition(competitionId);
+    if (!record) {
+      context.log({ operation, competitionId, adminId, found: false });
+      return { status: 404, jsonBody: { error: 'Competition not found.' } };
+    }
+
+    const [competition, stats] = await Promise.all([
+      toCompetitionView(record),
+      getCompetitionStats(competitionId),
+    ]);
+    context.log({ operation, competitionId, adminId, found: true });
+    return { status: 200, jsonBody: { competition, stats } };
+  } catch (error) {
+    context.log({ operation, competitionId, adminId, error: errorMessage(error) });
+    return {
+      status: 500,
+      jsonBody: { error: 'Unable to retrieve the competition summary.' },
+    };
+  }
+}
 
 async function create(
   request: HttpRequest,

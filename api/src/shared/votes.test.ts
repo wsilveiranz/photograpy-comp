@@ -132,16 +132,34 @@ describe('castVote', () => {
 describe('listApprovedAnonymized', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('returns only an entry id and thumbnail URL for approved entries', async () => {
+  it('returns an entry id, image URLs and dimensions for approved entries, without identifying fields', async () => {
     const entries = {
       listEntities: vi.fn().mockImplementation(() => asyncEntities([entry(), entry('rejected')])),
     };
     storage.getTableClient.mockResolvedValue(entries);
-    storage.generateReadSasUrl.mockResolvedValue('https://images.test/thumb.jpg');
+    storage.generateReadSasUrl.mockImplementation(async (blobName: string) =>
+      blobName.includes('/thumb/')
+        ? 'https://images.test/thumb.jpg'
+        : 'https://images.test/full.jpg',
+    );
 
     const listed = await listApprovedAnonymized('competition-1');
 
-    expect(listed).toEqual([{ entryId: 'entry-1', thumbUrl: 'https://images.test/thumb.jpg' }]);
-    expect(Object.keys(listed[0]).sort()).toEqual(['entryId', 'thumbUrl']);
+    expect(listed).toEqual([
+      {
+        entryId: 'entry-1',
+        thumbUrl: 'https://images.test/thumb.jpg',
+        fullUrl: 'https://images.test/full.jpg',
+        width: 2000,
+        height: 1200,
+      },
+    ]);
+    expect(Object.keys(listed[0]).sort()).toEqual([
+      'entryId',
+      'fullUrl',
+      'height',
+      'thumbUrl',
+      'width',
+    ]);
   });
 });

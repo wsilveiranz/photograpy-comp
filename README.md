@@ -36,7 +36,7 @@ Run each in its own terminal:
 
 ```bash
 # 1. Storage emulator (Blob + Table)
-npx azurite --silent --location ./.azurite
+npx azurite --silent --skipApiVersionCheck --location ./.azurite
 
 # 2. Backend (Azure Functions)
 cd api && npm install && npm start        # http://localhost:7071/api/health
@@ -50,6 +50,12 @@ Instead of the CLI in step 1 you can use the **Azurite VS Code extension** (reco
 provided `.vscode/settings.json` (gitignored, so create your own if cloning fresh) pins its data to
 `./.azurite`, so both launch methods share the same storage. Only run one Azurite instance at a
 time (they share ports 10000–10002).
+
+> **`skipApiVersionCheck` is required.** The Azure Storage SDKs (`@azure/storage-blob`) negotiate a
+> newer REST API version than Azurite supports, so without this flag blob uploads fail with
+> *"The API version … is not supported by Azurite."* The CLI flag is `--skipApiVersionCheck`; the
+> VS Code extension equivalent is `"azurite.skipApiVersionCheck": true` in `.vscode/settings.json`.
+> **Restart Azurite after enabling it** (Command Palette → *Azurite: Close*, then *Azurite: Start*).
 
 The API uses `api/local.settings.json` (gitignored — never committed) for local settings. Set
 `ADMIN_ALLOWLIST` to a comma-separated list of administrator email addresses or Entra object IDs.

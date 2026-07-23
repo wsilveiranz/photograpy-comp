@@ -13,6 +13,7 @@ import { getCurrentUser, type CurrentUser } from '../services/auth';
 interface AuthContextValue {
   user: CurrentUser | null;
   isAdmin: boolean;
+  isApproved: boolean;
   loading: boolean;
   error: string | null;
   login: () => void;
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       isAdmin: user?.isAdmin ?? false,
+      isApproved: user?.isApproved ?? false,
       loading,
       error,
       login,

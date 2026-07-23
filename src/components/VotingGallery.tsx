@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import type { AnonymizedEntry } from '../types';
 import {
   castVote,
@@ -6,6 +6,7 @@ import {
   listVotingEntries,
   removeVote,
 } from '../services/votes';
+import { Lightbox } from './Lightbox';
 import './voting-gallery.css';
 
 export interface VotingGalleryProps {
@@ -19,6 +20,7 @@ export function VotingGallery({ competitionId }: VotingGalleryProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [pendingEntryId, setPendingEntryId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -69,6 +71,28 @@ export function VotingGallery({ competitionId }: VotingGalleryProps) {
     setPendingEntryId(null);
   }
 
+  function renderVoteButton(entry: AnonymizedEntry): ReactNode {
+    const isVoted = votedEntryIds.includes(entry.entryId);
+    const isPending = pendingEntryId === entry.entryId;
+    const cannotAddVote = !isVoted && remaining === 0;
+    return (
+      <button
+        type="button"
+        onClick={() => void toggleVote(entry.entryId)}
+        disabled={isPending || cannotAddVote}
+        aria-pressed={isVoted}
+        className={`voting-gallery__vote${isVoted ? ' voting-gallery__vote--selected' : ''}`}
+      >
+        {isPending && <span className="voting-gallery__spinner" aria-hidden="true" />}
+        {isPending
+          ? 'Updating vote…'
+          : isVoted
+            ? 'Selected — tap to remove'
+            : 'Tap to vote'}
+      </button>
+    );
+  }
+
   return (
     <section aria-label="Vote for photos" className="voting-gallery">
       <div className="voting-gallery__summary">
@@ -87,36 +111,46 @@ export function VotingGallery({ competitionId }: VotingGalleryProps) {
         </p>
       ) : (
         <div className="voting-gallery__grid">
-          {entries.map((entry) => {
-            const isVoted = votedEntryIds.includes(entry.entryId);
-            const isPending = pendingEntryId === entry.entryId;
-            const cannotAddVote = !isVoted && remaining === 0;
-            return (
+          {entries.map((entry, entryIndex) => (
+            <figure key={entry.entryId} className="voting-gallery__entry">
               <button
-                key={entry.entryId}
                 type="button"
-                onClick={() => void toggleVote(entry.entryId)}
-                disabled={isPending || cannotAddVote}
-                aria-pressed={isVoted}
-                className="voting-gallery__entry"
+                className="voting-gallery__view"
+                onClick={() => setLightboxIndex(entryIndex)}
+                aria-label="View photo larger"
               >
                 <img
                   src={entry.thumbUrl}
                   alt="Competition entry"
                   className="voting-gallery__image"
+                  width={entry.width}
+                  height={entry.height}
+                  loading="lazy"
                 />
-                <span className="voting-gallery__entry-label">
-                  {isPending && <span className="voting-gallery__spinner" aria-hidden="true" />}
-                  {isPending
-                    ? 'Updating vote…'
-                    : isVoted
-                      ? 'Selected — tap to remove'
-                      : 'Tap to vote'}
-                </span>
               </button>
-            );
-          })}
+              {renderVoteButton(entry)}
+            </figure>
+          ))}
         </div>
+      )}
+
+      {lightboxIndex !== null && (
+        <Lightbox
+          items={entries.map((entry) => ({
+            id: entry.entryId,
+            url: entry.fullUrl,
+            width: entry.width,
+            height: entry.height,
+            alt: 'Competition entry',
+          }))}
+          index={lightboxIndex}
+          onIndexChange={setLightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          renderActions={(item) => {
+            const entry = entries.find((candidate) => candidate.entryId === item.id);
+            return entry ? renderVoteButton(entry) : null;
+          }}
+        />
       )}
     </section>
   );

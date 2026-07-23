@@ -1,13 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import {
   createCompetition,
-  getCompetition,
+  getAdminCompetitionSummary,
   listCompetitions,
   setPrize,
   updateCompetitionStatus,
   type CompetitionStatusUpdate,
 } from '../services/competitions';
-import type { Competition } from '../types';
+import type { Competition, CompetitionStats } from '../types';
 import { CompetitionCard } from './CompetitionCard';
 import './competitions.css';
 
@@ -17,6 +17,7 @@ export interface CompetitionAdminProps {
 
 export function CompetitionAdmin({ competitionId }: CompetitionAdminProps) {
   const [competition, setCompetition] = useState<Competition | null>(null);
+  const [stats, setStats] = useState<CompetitionStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,27 +33,39 @@ export function CompetitionAdmin({ competitionId }: CompetitionAdminProps) {
 
     async function load() {
       setLoading(true);
-      const result = competitionId
-        ? await getCompetition(competitionId)
-        : await listCompetitions();
-      if (cancelled) {
-        return;
-      }
-
       if (competitionId) {
-        const detailResult = result as Awaited<ReturnType<typeof getCompetition>>;
-        setCompetition(detailResult.data);
-        setError(detailResult.error);
-        applyCompetitionDates(detailResult.data);
+        const summaryResult = await getAdminCompetitionSummary(competitionId);
+        if (cancelled) {
+          return;
+        }
+        setCompetition(summaryResult.data?.competition ?? null);
+        setStats(summaryResult.data?.stats ?? null);
+        setError(summaryResult.error);
+        applyCompetitionDates(summaryResult.data?.competition ?? null);
       } else {
-        const listResult = result as Awaited<ReturnType<typeof listCompetitions>>;
+        const listResult = await listCompetitions();
+        if (cancelled) {
+          return;
+        }
         const selected =
           listResult.data?.find((item) => item.status !== 'closed') ??
           listResult.data?.[0] ??
           null;
-        setCompetition(selected);
-        setError(listResult.error);
-        applyCompetitionDates(selected);
+        if (!selected || listResult.error) {
+          setCompetition(selected);
+          setStats(null);
+          setError(listResult.error);
+          applyCompetitionDates(selected);
+        } else {
+          const summaryResult = await getAdminCompetitionSummary(selected.id);
+          if (cancelled) {
+            return;
+          }
+          setCompetition(summaryResult.data?.competition ?? selected);
+          setStats(summaryResult.data?.stats ?? null);
+          setError(summaryResult.error);
+          applyCompetitionDates(summaryResult.data?.competition ?? selected);
+        }
       }
       setLoading(false);
     }
@@ -93,6 +106,7 @@ export function CompetitionAdmin({ competitionId }: CompetitionAdminProps) {
     }
 
     setCompetition(current);
+    setStats({ entryCount: 0, approvedEntryCount: 0, voteCount: 0 });
     setName('');
     setPrizeImage(null);
     setNotice('Competition opened for submissions.');
@@ -165,7 +179,7 @@ export function CompetitionAdmin({ competitionId }: CompetitionAdminProps) {
       aria-busy={busy}
       aria-labelledby="competition-admin-heading"
     >
-      <h2 id="competition-admin-heading">Competition administration</h2>
+      <h1 id="competition-admin-heading">Competition administration</h1>
       {error && <p role="alert" className="competition-message competition-message--error">{error}</p>}
       {notice && <p role="status" className="competition-message">{notice}</p>}
 
@@ -173,6 +187,40 @@ export function CompetitionAdmin({ competitionId }: CompetitionAdminProps) {
         <div className="competition-admin__current">
           <h3>Current competition</h3>
           <CompetitionCard competition={competition} linkToDetails={false} />
+          <dl className="competition-admin__summary">
+            <div>
+              <dt>Entries</dt>
+              <dd>
+                {stats
+                  ? `${stats.approvedEntryCount} approved / ${stats.entryCount} total`
+                  : 'Unavailable'}
+              </dd>
+            </div>
+            <div>
+              <dt>Total votes</dt>
+              <dd>{stats?.voteCount ?? 'Unavailable'}</dd>
+            </div>
+            <div>
+              <dt>Competition id</dt>
+              <dd>{competition.id}</dd>
+            </div>
+            <div>
+              <dt>Created</dt>
+              <dd>{formatAdminDate(competition.createdAt)}</dd>
+            </div>
+            <div>
+              <dt>Voting starts</dt>
+              <dd>{formatAdminDate(competition.votingStartsAt)}</dd>
+            </div>
+            <div>
+              <dt>Voting ends</dt>
+              <dd>{formatAdminDate(competition.votingEndsAt)}</dd>
+            </div>
+            <div>
+              <dt>Closed</dt>
+              <dd>{formatAdminDate(competition.closedAt)}</dd>
+            </div>
+          </dl>
         </div>
       )}
 
@@ -309,4 +357,17 @@ function toDateTimeLocal(value: string | null): string {
   }
   const offset = date.getTimezoneOffset() * 60_000;
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function formatAdminDate(value: string | null): string {
+  if (!value) {
+    return 'Not set';
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? value
+    : new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(date);
 }

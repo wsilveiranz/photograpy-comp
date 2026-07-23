@@ -13,7 +13,6 @@ export function Layout({ children, nav, authControls, headerChildren }: LayoutPr
   return (
     <div className="app-shell">
       <Header nav={nav} authControls={authControls}>{headerChildren}</Header>
-      <div className="app-shell__hero" aria-hidden="true" />
       <main className="app-shell__content">{children}</main>
       <Footer />
     </div>

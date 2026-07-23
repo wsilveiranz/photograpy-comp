@@ -80,9 +80,18 @@ export async function generateReadSasUrl(blobName: string, ttlMinutes: number): 
 }
 
 async function initializeTableClient(name: TableName): Promise<TableClient> {
-  const client = TableClient.fromConnectionString(getStorageConnection(), name);
+  const connection = getStorageConnection();
+  const client = TableClient.fromConnectionString(connection, name, {
+    allowInsecureConnection: usesInsecureEndpoint(connection),
+  });
   await client.createTable();
   return client;
+}
+
+function usesInsecureEndpoint(connectionString: string): boolean {
+  return /(^|;)\s*(defaultendpointsprotocol\s*=\s*http\b|tableendpoint\s*=\s*http:\/\/)/i.test(
+    connectionString,
+  );
 }
 
 function getBlobServiceClient(): BlobServiceClient {

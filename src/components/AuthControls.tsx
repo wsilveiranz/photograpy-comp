@@ -18,7 +18,7 @@ export function AuthControls() {
 
   return (
     <div className="auth-controls">
-      <span>{user.userDetails || user.userId}</span>
+      <span>{user.displayName || user.userDetails || user.userId}</span>
       <button className="auth-button" type="button" onClick={logout}>
         Sign out
       </button>

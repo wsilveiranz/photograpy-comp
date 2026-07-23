@@ -13,7 +13,6 @@
 
 .voting-gallery__summary p,
 .voting-gallery__loading,
-.voting-gallery__entry-label,
 .voting-gallery__error {
   margin: 0;
   font-size: var(--text-sm);
@@ -23,8 +22,7 @@
   color: var(--color-coral);
 }
 
-.voting-gallery__loading,
-.voting-gallery__entry-label {
+.voting-gallery__loading {
   display: flex;
   align-items: center;
   gap: var(--space-1);
@@ -32,42 +30,75 @@
 
 .voting-gallery__grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   gap: var(--space-3);
 }
 
 .voting-gallery__entry {
-  min-height: 44px;
-  padding: 0;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2);
   border: 1px solid var(--color-muted);
   border-radius: var(--radius-md);
   background: var(--color-paper);
   color: var(--color-ink);
-  text-align: left;
-  cursor: pointer;
 }
 
-.voting-gallery__entry:focus-visible {
+.voting-gallery__view {
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-ink) 6%, var(--color-paper));
+  cursor: zoom-in;
+}
+
+.voting-gallery__view:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
-.voting-gallery__entry:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
 .voting-gallery__image {
   display: block;
-  aspect-ratio: 1;
   width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
 }
 
-.voting-gallery__entry-label {
+.voting-gallery__vote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
   min-height: 44px;
   padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.voting-gallery__vote--selected {
+  border-color: var(--color-action);
+  background: var(--color-action);
+  color: var(--color-paper);
+}
+
+.voting-gallery__vote:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.voting-gallery__vote:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .voting-gallery__spinner {
@@ -82,16 +113,4 @@
 
 @keyframes voting-gallery-spin {
   to { transform: rotate(360deg); }
-}
-
-@media (min-width: 40rem) {
-  .voting-gallery__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 64rem) {
-  .voting-gallery__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }

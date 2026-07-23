@@ -66,8 +66,40 @@
   gap: var(--space-5);
 }
 
+.competition-admin > h1 {
+  font-size: var(--text-lg);
+  line-height: 1.1;
+}
+
 .competition-admin__current {
   max-width: 42rem;
+}
+
+.competition-admin__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  border-radius: var(--radius-md);
+  background: white;
+}
+
+.competition-admin__summary div {
+  min-width: 0;
+}
+
+.competition-admin__summary dt {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.competition-admin__summary dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
 }
 
 .competition-form {
@@ -116,10 +148,29 @@
   resize: vertical;
 }
 
+.competition-form input[type="file"] {
+  padding: 0.25rem;
+  cursor: pointer;
+}
+
+.competition-form input[type="file"]::file-selector-button,
+.competition-form input[type="file"]::-webkit-file-upload-button {
+  min-height: 44px;
+  margin: -0.25rem var(--space-2) -0.25rem -0.25rem;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-action);
+  color: var(--color-paper);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
 .competition-form button {
   padding: var(--space-2) var(--space-3);
-  border-color: var(--color-purple);
-  background: var(--color-purple);
+  border-color: var(--color-action);
+  background: var(--color-action);
   color: white;
   font-weight: 700;
   cursor: pointer;

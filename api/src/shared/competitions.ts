@@ -139,7 +139,7 @@ export async function setPrize(
 ): Promise<CompetitionRecord> {
   const record = await requireCompetition(id);
   const prizeDescription = requireText(description, 'Prize description');
-  const validation = validateImage(imageBuffer, contentType);
+  const validation = validateImage(imageBuffer, contentType, { minLongEdge: 0 });
 
   if (!validation.valid) {
     throw new CompetitionError('validation_error', validation.error);

@@ -2,10 +2,11 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, Route, Routes, useParams, useSearchParams } from 'react-router-dom';
 import { AuthControls } from './components/AuthControls';
 import { CompetitionAdmin } from './components/CompetitionAdmin';
+import { CompetitionCard } from './components/CompetitionCard';
 import { CompetitionDetails } from './components/CompetitionDetails';
-import { CompetitionList } from './components/CompetitionList';
 import { Layout } from './components/Layout';
 import { MyEntries } from './components/MyEntries';
+import { PastCompetitions } from './components/PastCompetitions';
 import { RequireAdmin } from './components/RequireAdmin';
 import { RequireAuth } from './components/RequireAuth';
 import { ResultsAdmin } from './components/ResultsAdmin';
@@ -94,12 +95,90 @@ function App() {
 }
 
 function HomePage() {
+  const [competition, setCompetition] = useState<Competition | null>(null);
+  const [pastCompetitions, setPastCompetitions] = useState<Competition[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    void listCompetitions().then((result) => {
+      if (!active) {
+        return;
+      }
+      setLoading(false);
+      if (!result.data) {
+        setError(result.error);
+        return;
+      }
+      const list = result.data;
+      const current = list.find((item) => item.status !== 'closed') ?? list[0] ?? null;
+      setCompetition(current);
+      setPastCompetitions(
+        list.filter((item) => item.status === 'closed' && item.id !== current?.id),
+      );
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
-    <>
-      <h1>Photography Competition</h1>
+    <section aria-labelledby="home-heading">
+      <h1 id="home-heading">Photography Competition</h1>
       <p>Upload up to 5 photos and vote for the best.</p>
-      <CompetitionList />
-    </>
+
+      {loading && <p aria-live="polite">Loading competition…</p>}
+      {error && <p role="alert">Unable to load the competition: {error}</p>}
+      {!loading && !error && !competition && (
+        <p role="status">No competition is running right now. Check back soon.</p>
+      )}
+
+      {competition && (
+        <div className="home">
+          <CompetitionCard competition={competition} linkToDetails={false} />
+          <HomeAction competition={competition} />
+        </div>
+      )}
+
+      {!loading && !error && <PastCompetitions competitions={pastCompetitions} />}
+    </section>
+  );
+}
+
+function HomeAction({ competition }: { competition: Competition }) {
+  if (competition.status === 'voting' || competition.status === 'tiebreak') {
+    return (
+      <RequireAuth>
+        <VotingGallery competitionId={competition.id} />
+      </RequireAuth>
+    );
+  }
+
+  if (competition.status === 'submissions') {
+    return (
+      <p>
+        <Link
+          className="home__cta"
+          to={`/upload?competitionId=${encodeURIComponent(competition.id)}`}
+        >
+          Upload your photos
+        </Link>
+      </p>
+    );
+  }
+
+  return (
+    <p>
+      <Link
+        className="home__cta"
+        to={`/competitions/${encodeURIComponent(competition.id)}/winners`}
+      >
+        View winners
+      </Link>
+    </p>
   );
 }
 

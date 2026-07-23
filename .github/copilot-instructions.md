@@ -100,7 +100,7 @@ cd api && npm install
 npm start              # equivalent to `func start` — hosts Functions locally
 
 # Local storage emulator (separate terminal)
-npx azurite --silent --location ./.azurite   # Blob + Table emulator
+npx azurite --silent --skipApiVersionCheck --location ./.azurite   # Blob + Table emulator
 ```
 
 Local dev needs three processes: **Azurite**, **`func start`** (in `api/`, serves `:7071`), and

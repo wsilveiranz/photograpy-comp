@@ -37,7 +37,12 @@ const DECLARED_CONTENT_TYPES = new Map<string, SupportedImageContentType>([
 const HEIC_BRANDS = new Set(['heic', 'heix', 'hevc', 'hevx']);
 const HEIF_BRANDS = new Set(['heif', 'mif1', 'msf1']);
 
-export function validateImage(buffer: Buffer, declaredContentType: string): ImageValidationResult {
+export function validateImage(
+  buffer: Buffer,
+  declaredContentType: string,
+  options: { minLongEdge?: number } = {},
+): ImageValidationResult {
+  const minLongEdge = options.minLongEdge ?? MIN_IMAGE_LONG_EDGE;
   if (buffer.length === 0) {
     return { valid: false, error: 'Image is empty.' };
   }
@@ -77,10 +82,10 @@ export function validateImage(buffer: Buffer, declaredContentType: string): Imag
     ) {
       return { valid: false, error: 'Unable to determine image dimensions.' };
     }
-    if (Math.max(width, height) < MIN_IMAGE_LONG_EDGE) {
+    if (minLongEdge > 0 && Math.max(width, height) < minLongEdge) {
       return {
         valid: false,
-        error: `Image long edge must be at least ${MIN_IMAGE_LONG_EDGE} pixels.`,
+        error: `Image long edge must be at least ${minLongEdge} pixels.`,
       };
     }
 
